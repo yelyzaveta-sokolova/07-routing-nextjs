@@ -29,7 +29,7 @@ export const fetchNoteById = async (id: string): Promise<Note> => {
 }
 
 export const createNote = async (
-  note: Pick<Note, 'title' | 'content' | 'tag'>
+  note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>
 ): Promise<Note> => {
   const { data } = await api.post<Note>('/notes', note)
   return data

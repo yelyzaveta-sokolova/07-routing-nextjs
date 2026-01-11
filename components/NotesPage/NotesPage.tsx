@@ -1,35 +1,63 @@
 'use client'
 
 import { useState } from 'react'
-import SearchBox from '../SearchBox/SearchBox'
-import Pagination from '../Pagination/Pagination'
+import { useQuery } from '@tanstack/react-query'
+
+import { fetchNotes } from '@/lib/api'
+import { Note } from '@/types/note'
+
 import NoteList from '../NoteList/NoteList'
+import Pagination from '../Pagination/Pagination'
+import SearchBox from '../SearchBox/SearchBox'
 import Modal from '../Modal/Modal'
 import NoteForm from '../NoteForm/NoteForm'
 
-export default function NotesPage() {
-  const [search, setSearch] = useState('')
-  const [page, setPage] = useState(1)
-  const [isOpen, setIsOpen] = useState(false)
+interface NotesResponse {
+  notes: Note[]
+  totalPages: number
+}
 
-  const mockNotes = [
-    { id: '1', title: 'First note' },
-    { id: '2', title: 'Second note' },
-  ]
+export default function NotesPage() {
+  const [page, setPage] = useState<number>(1)
+  const [search, setSearch] = useState<string>('')
+  const [isOpen, setIsOpen] = useState<boolean>(false)
+
+  const { data, isLoading, error } = useQuery<NotesResponse>({
+    queryKey: ['notes', page, search],
+    queryFn: () => fetchNotes(page, search),
+    placeholderData: (previousData) => previousData,
+  })
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value)
+    setPage(1)
+  }
+
+  if (isLoading) {
+    return <p>Loading, please wait...</p>
+  }
+
+  if (error || !data) {
+    return <p>Something went wrong.</p>
+  }
 
   return (
-    <section>
-      <SearchBox value={search} onChange={setSearch} />
+    <>
+      <SearchBox value={search} onChange={handleSearchChange} />
 
       <button onClick={() => setIsOpen(true)}>Add note</button>
 
-      <NoteList notes={mockNotes} />
+      <NoteList notes={data.notes} />
 
-      <Pagination page={page} totalPages={5} onPageChange={setPage} />
+      <Pagination
+        page={page}
+        totalPages={data.totalPages}
+        onPageChange={setPage}
+      />
 
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        <NoteForm />
+        <NoteForm close={() => setIsOpen(false)} />
       </Modal>
-    </section>
+    </>
   )
 }

@@ -22,18 +22,24 @@ export default function NoteList({ notes }: NoteListProps) {
 
   return (
     <ul className={styles.list}>
-      {notes.map((note) => (
+      {notes.map(note => (
         <li key={note.id} className={styles.listItem}>
-          <Link href={`/notes/${note.id}`} className={styles.link}>
+        
+          <Link href={`/notes/${note.id}`}
+            className={styles.link}
+          >
             {note.title}
           </Link>
 
           <p className={styles.content}>{note.content}</p>
 
+
           <div className={styles.footer}>
             <span className={styles.tag}>{note.tag}</span>
 
+           
             <button
+              type="button"
               className={styles.button}
               onClick={() => mutation.mutate(note.id)}
             >
@@ -44,4 +50,5 @@ export default function NoteList({ notes }: NoteListProps) {
       ))}
     </ul>
   )
+  
 }

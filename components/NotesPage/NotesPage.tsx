@@ -19,7 +19,7 @@ export default function NotesPage() {
 
   const handleSearchChange = (value: string) => {
     setSearch(value)
-    setPage(1) // 🔴 обязательно
+    setPage(1) 
   }
 
   if (isLoading && !data) {

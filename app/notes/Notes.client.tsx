@@ -3,17 +3,16 @@
 import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { fetchNotes } from '@/lib/api'
+import type { NotesResponse } from '@/lib/api'
+
 import NoteList from '@/components/NoteList/NoteList'
 import Pagination from '@/components/Pagination/Pagination'
 import SearchBox from '@/components/SearchBox/SearchBox'
-import Modal from '@/components/Modal/Modal'
-import NoteForm from '@/components/NoteForm/NoteForm'
 
 export default function NotesClient() {
-  const [page, setPage] = useState<number>(1)
-  const [search, setSearch] = useState<string>('')
-  const [debouncedSearch, setDebouncedSearch] = useState<string>('')
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [page, setPage] = useState(1)
+  const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -24,19 +23,21 @@ export default function NotesClient() {
     return () => clearTimeout(timer)
   }, [search])
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError } = useQuery<NotesResponse>({
     queryKey: ['notes', page, debouncedSearch],
-    queryFn: () => fetchNotes(page, debouncedSearch),
+    queryFn: () =>
+      fetchNotes({
+        page,
+        search: debouncedSearch,
+      }),
     placeholderData: (prev) => prev,
   })
 
-  if (isLoading) return <p>Loading...</p>
+  if (isLoading && !data) return <p>Loading...</p>
   if (isError || !data) return <p>Error loading notes</p>
 
   return (
     <>
-      <button onClick={() => setIsOpen(true)}>Add note</button>
-
       <SearchBox value={search} onChange={setSearch} />
 
       <NoteList notes={data.notes} />
@@ -46,10 +47,6 @@ export default function NotesClient() {
         totalPages={data.totalPages}
         onPageChange={setPage}
       />
-
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        <NoteForm close={() => setIsOpen(false)} />
-      </Modal>
     </>
   )
 }

@@ -8,7 +8,6 @@ const api = axios.create({
   },
 })
 
-/* ===================== TYPES ===================== */
 
 export interface NotesResponse {
   notes: Note[]
@@ -21,9 +20,6 @@ export interface FetchNotesParams {
   tag?: string
 }
 
-/* ===================== NOTES ===================== */
-
-// основной метод получения заметок (с фильтрацией)
 export const fetchNotes = async (
   params: FetchNotesParams = {}
 ): Promise<NotesResponse> => {
@@ -34,7 +30,6 @@ export const fetchNotes = async (
   if (page) queryParams.page = page
   if (search) queryParams.search = search
 
-  // ⚠️ backend НЕ принимает tag=all
   if (tag && tag !== 'all') {
     queryParams.tag = tag
   }
@@ -46,20 +41,17 @@ export const fetchNotes = async (
   return data
 }
 
-// 🔁 алиас для старых импортов (ВАЖНО)
 export const getNotes = fetchNotes
 
-/* ===================== SINGLE NOTE ===================== */
 
 export const fetchNoteById = async (id: string): Promise<Note> => {
   const { data } = await api.get<Note>(`/notes/${id}`)
   return data
 }
 
-// 🔁 алиас для модального окна
+
 export const getNoteById = fetchNoteById
 
-/* ===================== MUTATIONS ===================== */
 
 export const createNote = async (
   note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>

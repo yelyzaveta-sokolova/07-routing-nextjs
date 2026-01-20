@@ -1,17 +1,29 @@
-import NotesList from '@/components/NoteList/NoteList'
 import { fetchNotes } from '@/lib/api'
+import NotesClient from './Notes.client'
+
+const TAGS = ['Work', 'Personal', 'Meeting', 'Shopping', 'Todo'] as const
+type Tag = (typeof TAGS)[number]
 
 type Props = {
-  params: Promise<{
-    tag?: string[]
-  }>
+  params: {
+    slug?: string[]
+  }
 }
 
-export default async function FilteredNotesPage({ params }: Props) {
-  const resolvedParams = await params
-  const tag = resolvedParams.tag?.[0] ?? 'all'
+export default async function NotesByCategory({ params }: Props) {
+  const rawTag = params.slug?.[0]
+
+  const tag =
+    rawTag === 'all' || !rawTag
+      ? undefined
+      : (TAGS.includes(rawTag as Tag) ? rawTag : undefined)
 
   const data = await fetchNotes({ tag })
 
-  return <NotesList notes={data.notes} />
+  return (
+    <NotesClient
+      notes={data.notes}
+      title={tag ? `Notes: ${tag}` : 'All notes'}
+    />
+  )
 }

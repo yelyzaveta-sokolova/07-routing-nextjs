@@ -1,17 +1,12 @@
-import { getNoteById } from '@/lib/api'
-import Modal from '@/components/Modal/Modal'
-import NotePreview from '@/components/NotePreview/NotePreview'
+import { fetchNoteById } from '@/lib/api'
+import NotePreviewClient from './NotePreview.client'
 
 type Props = {
   params: { id: string }
 }
 
 export default async function NotePreviewModal({ params }: Props) {
-  const note = await getNoteById(params.id)
+  const note = await fetchNoteById(params.id)
 
-  return (
-    <Modal>
-      <NotePreview note={note} />
-    </Modal>
-  )
+  return <NotePreviewClient note={note} />
 }

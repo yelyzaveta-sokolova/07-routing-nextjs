@@ -1,23 +1,45 @@
 'use client'
 
-import { Note } from '@/types/note'
+import { useState, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { fetchNotes } from '@/lib/api'
 import NoteList from '@/components/NoteList/NoteList'
+import SearchBox from '@/components/SearchBox/SearchBox'
+import Pagination from '@/components/Pagination/Pagination'
 
 type Props = {
-  notes: Note[]
-  title: string
+  tag?: string
 }
 
-export default function NotesClient({ notes, title }: Props) {
-  return (
-    <section>
-      <h1>{title}</h1>
+export default function NotesClient({ tag }: Props) {
+  const [page, setPage] = useState(1)
+  const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
 
-      {notes.length > 0 ? (
-        <NoteList notes={notes} />
-      ) : (
-        <p>No notes found</p>
-      )}
-    </section>
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(search)
+      setPage(1)
+    }, 500)
+    return () => clearTimeout(t)
+  }, [search])
+
+  const { data } = useQuery({
+    queryKey: ['notes', page, debouncedSearch, tag],
+    queryFn: () => fetchNotes({ page, search: debouncedSearch, tag }),
+  })
+
+  if (!data) return null
+
+  return (
+    <>
+      <SearchBox value={search} onChange={setSearch} />
+      <NoteList notes={data.notes} />
+      <Pagination
+        page={page}
+        totalPages={data.totalPages}
+        onPageChange={setPage}
+      />
+    </>
   )
 }

@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
+
 import { fetchNotes } from '@/lib/api'
+import type { Note } from '@/types/note'
 
 import NoteList from '@/components/NoteList/NoteList'
 import SearchBox from '@/components/SearchBox/SearchBox'
 import Pagination from '@/components/Pagination/Pagination'
 import Modal from '@/components/Modal/Modal'
 import NoteForm from '@/components/NoteForm/NoteForm'
-
-import type { Note } from '@/types/note'
 
 type NotesResponse = {
   notes: Note[]
@@ -28,12 +28,12 @@ export default function NotesClient({ tag }: Props) {
   const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       setDebouncedSearch(search)
       setPage(1)
     }, 500)
 
-    return () => clearTimeout(t)
+    return () => clearTimeout(timer)
   }, [search])
 
   const { data, isLoading, isError } = useQuery<NotesResponse>({
@@ -46,12 +46,14 @@ export default function NotesClient({ tag }: Props) {
       }),
   })
 
+  const closeModal = () => setIsOpen(false)
+
   if (isLoading) return <p>Loading...</p>
   if (isError || !data) return <p>Something went wrong</p>
 
   return (
     <>
-      <button onClick={() => setIsOpen(true)}>
+      <button type="button" onClick={() => setIsOpen(true)}>
         Add note
       </button>
 
@@ -70,8 +72,8 @@ export default function NotesClient({ tag }: Props) {
       )}
 
       {isOpen && (
-        <Modal>
-          <NoteForm close={() => setIsOpen(false)} />
+        <Modal onClose={closeModal}>
+          <NoteForm close={closeModal} />
         </Modal>
       )}
     </>

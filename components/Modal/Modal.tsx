@@ -1,25 +1,27 @@
 'use client'
 
+import { ReactNode } from 'react'
+import { useRouter } from 'next/navigation'
 import styles from './Modal.module.css'
 
 type Props = {
-  children: React.ReactNode
-  onClose: () => void
+  children: ReactNode
 }
 
-export default function Modal({ children, onClose }: Props) {
+export default function Modal({ children }: Props) {
+  const router = useRouter()
+
   return (
-    <div className={styles.backdrop} onClick={onClose}>
+    <div className={styles.backdrop} onClick={() => router.back()}>
       <div
         className={styles.modal}
-        onClick={(e) => e.stopPropagation()}
+        onClick={e => e.stopPropagation()}
       >
         <button
-          type="button"
-          className={styles.closeButton}
-          onClick={onClose}
+          className={styles.close}
+          onClick={() => router.back()}
         >
-          ×
+          ✕
         </button>
 
         {children}

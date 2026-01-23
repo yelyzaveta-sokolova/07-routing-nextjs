@@ -44,5 +44,6 @@ export default function NotePreviewClient() {
         {new Date(data.createdAt).toLocaleDateString()}
       </small>
     </Modal>
+    
   )
 }
